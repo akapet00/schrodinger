@@ -38,7 +38,7 @@ Run the notebook
 $ jupyter notebook
 ```
 
-Activate the environment
+Deactivate the environment
 
 ```bash
 $ conda deactivate
