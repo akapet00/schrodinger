@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
-from utils.Plotting import latexconfig
 import numpy as np
 
 h = 6.626e-34    # Planck constant [J⋅s]
