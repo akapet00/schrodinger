@@ -21,10 +21,22 @@ Ts = [4000., 5000., 6000., 7000.]
 plt.figure('Black-body Radiation',figsize=(8, 4))
 for T in Ts:
     plt.plot(λ*1e9, B_p(λ, T), label=f'$T={int(T)}K$')
+
 plt.plot(λ*1e9, B_rj(λ, T=5000), label=f'Rayleigh-Jeans (T={5000}K)', color='black')
+
 plt.vlines(x=380, ymin=0, ymax=7e13, color='black', linestyle=':')
 plt.vlines(x=740, ymin=0, ymax=7e13, color='black', linestyle=':', 
            label='visible light borders')
+
+#visible spectrum coloring
+plt.axvspan(380, 450, alpha=0.3, color='violet')
+plt.axvspan(451, 485, alpha=0.3, color='blue')
+plt.axvspan(486, 500, alpha=0.3, color='cyan')
+plt.axvspan(501, 565, alpha=0.3, color='green')
+plt.axvspan(566, 590, alpha=0.3, color='yellow')
+plt.axvspan(591, 625, alpha=0.3, color='orange')
+plt.axvspan(626, 740, alpha=0.3, color='red')
+
 plt.ylim([0, 7e13])
 plt.legend(loc='best')
 plt.xlabel('$\lambda$ [nm]')

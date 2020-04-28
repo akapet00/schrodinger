@@ -30,7 +30,10 @@ for i, n in enumerate(quantum_numbers):
     axs[i].text(0, np.max(pdf(x,n)), '$\infty$', color='r')
     axs[i].text(1, np.max(pdf(x,n)), '$\infty$', color='r')
 
-    axs[i].legend(loc='lower left')
+    if i == 0:
+        axs[i].legend(loc='lower center')
+    else:
+        axs[i].legend(loc='lower left')
 
 
 plt.setp(axs, yticks=[]) # yticks removed
