@@ -18,7 +18,7 @@ def B_p(λ, T):
 λ = np.arange(1e-9, 3e-6, 1e-9, dtype=np.float128) 
 Ts = [4000., 5000., 6000., 7000.]
 
-plt.figure('Black-body Radiation',figsize=(8, 4))
+plt.figure('Black-body Radiation', figsize=(8, 4))
 for T in Ts:
     plt.plot(λ*1e9, B_p(λ, T), label=f'$T={int(T)}K$')
 

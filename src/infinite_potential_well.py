@@ -15,7 +15,7 @@ L = 1
 quantum_numbers = [1, 2, 3]
 x = np.linspace(0, 1, 100)
 
-fig, axs = plt.subplots(3, 1, sharex='all', figsize=(6, 8))
+fig, axs = plt.subplots(3, 1, sharex='all', figsize=(8, 12))
 for i, n in enumerate(quantum_numbers):
     axs[i].plot(x, Ψ(x, n), 'r--', label='$\Psi(x)$')
 
