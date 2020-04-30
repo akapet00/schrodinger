@@ -18,7 +18,7 @@ Access `schrodinger` directory
 $ cd schrodinger
 ```
 
-Create new environment named as `schrodinger_tf2_gpu`
+Create new environment named `schrodinger_tf2_gpu`
 
 ```bash
 $ conda env create -f environment.yml -n schrodinger_tf2_gpu
@@ -46,7 +46,7 @@ $ conda deactivate
 
 ## Remove from your local machine
 
-Remove environment and its dependencies
+Remove the environment and its dependencies
 
 ```bash
 $ conda remove -n schrodinger_tf2_gpu --all
@@ -54,7 +54,9 @@ $ conda remove -n schrodinger_tf2_gpu --all
 
 ## Requirements
 
-Listed in [environment.yml](https://github.com/antelk/schrodinger/environment.yml).
+Linux machine with Nvidia GPU support, for more details visit [TensorFlow official hardware & software requirements](https://www.tensorflow.org/install/gpu).
+
+Library dependencies are listed in [environment.yml](https://github.com/antelk/schrodinger/environment.yml).
 
 ## License
 
