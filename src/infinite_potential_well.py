@@ -38,4 +38,3 @@ for i, n in enumerate(quantum_numbers):
 plt.xlabel('$L$ [nm]')
 plt.tight_layout()
 plt.show()  
-
