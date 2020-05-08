@@ -3,6 +3,8 @@ from matplotlib.widgets import Slider
 import seaborn as sns
 sns.set()
 import numpy as np
+from utils.plotting import latexconfig
+latexconfig()
 
 def double_slit_intensity(a, λ, L, d, x) :
     """

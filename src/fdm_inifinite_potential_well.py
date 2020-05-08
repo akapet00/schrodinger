@@ -1,11 +1,12 @@
 import argparse
 import numpy as np
 from scipy.constants import h, hbar, m_e, pi
-from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerTuple
 import seaborn as sns
 sns.set()
+from utils.plotting import latexconfig
+from utils.metrics import rmse
 
 parser = argparse.ArgumentParser(description='Takes the number of grid points.')
 parser.add_argument('-n', '--num_of_points',
@@ -15,14 +16,6 @@ parser.add_argument('-n', '--num_of_points',
                         an electron in the infinite quantum well based on the given\
                         number of grid points.',
                     default=10)
-                             
-def mape(true, predict):
-    """mean absolute percentage errror"""
-    return np.mean(np.abs(true - predict)/(1 + np.abs(true))) * 100.0
-
-def rmse(true, predict):
-    """root mean squared error"""
-    return np.sqrt(mean_squared_error(true, predict))
 
 def psi_close_form(x, n, L):
     """analyitcal solution for 1-D wave eqn"""
@@ -39,7 +32,7 @@ def V(x):
 
 def fdm(N, xmin, L, bcs):
     """(- hbar**2/(2*m_e) * d^2/dx^2) psi = E * psi"""
-    dx = (L - xmin)/(N - 1)         # distance between grid points
+    dx = (L - xmin)/(N-1)         # distance between grid points
     xmesh = np.linspace(xmin, L, N) # mesh
 
     psi_0, psi_L = bcs       
@@ -51,14 +44,16 @@ def fdm(N, xmin, L, bcs):
     H = - hbar/(2 * m_e * dx**2) * d_xx + np.diag(np.full(N, V(xmesh)), k=0)
 
     # eigenvalues (E) and eigenvector (psi)
-    E, U = np.linalg.eig(H)
+    E, psi = np.linalg.eig(H)
  
     # eigenvector normalization
-    U = U * np.linalg.norm(U)
+    psi = psi * np.linalg.norm(psi)
+    psi[0, :] = psi_0 
+    psi[-1, :] = psi_L
 
     # probability density function |psi|^2
-    pdf = U * np.conj(U)
-    return E, U, pdf
+    pdf = psi * np.conj(psi)
+    return E, np.real(psi[::-1]), pdf
     
 def main():
     args = parser.parse_args()
@@ -78,7 +73,7 @@ def main():
 
     # H psi = E psi
     # H = - hbar**2/(2*m_e) * d^2/dx^2 -> eigenvalue problem
-    E, U, pdf = fdm(N, xmin, L, bcs=[psi_0, psi_L])
+    E, psi, pdf = fdm(N, xmin, L, bcs=[psi_0, psi_L])
     
     fig, axs = plt.subplots(len(principal_quantum_numbers), 1, sharex='all', figsize=(7, 9))
     for i, (n, E_analytic) in enumerate(zip(principal_quantum_numbers, nonreletivistic_energies)):
@@ -87,7 +82,7 @@ def main():
     
         l1, = axs[i].plot(_x, psi_close_form(_x, n, L), 'b-')
         l2, = axs[i].plot(_x, pdf_close_form(_x, n, L), 'r-')
-        l3, = axs[i].plot(x, U[:, i], 'bo')
+        l3, = axs[i].plot(x, psi[:, i], 'bo')
         l4, = axs[i].plot(x, pdf[:, i], 'ro')
 
         axs[i].set_title(f'RMSE = {np.round(rmse(pdf_analytic, pdf[:, i]), 5)}')
@@ -96,5 +91,7 @@ def main():
     plt.xlabel(r'$x$')
     plt.tight_layout()
     plt.show() 
+
 if __name__ == "__main__":
+    latexconfig()
     main()

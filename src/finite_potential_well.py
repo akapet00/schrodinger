@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
 import numpy as np
+from utils.plotting import latexconfig
+latexconfig()
 
 # constants 
 A = 8.6375   #m/hbar
