@@ -54,7 +54,7 @@ def fdm(N, xmin, L, bcs):
 
     # eigenvector normalization
     psi = psi * np.linalg.norm(psi)
-
+    
     # probability density function |psi|^2
     pdf = psi * np.conj(psi)
     return E, psi[::-1], pdf
@@ -80,15 +80,13 @@ def main():
     E, psi, pdf = fdm(N, xmin, L, bcs=(psi_0, psi_L))
     
     fig, axs = plt.subplots(len(principal_quantum_numbers), 1, sharex='all', figsize=(7, 9))
-    for i, (n, E_analytic) in enumerate(zip(principal_quantum_numbers, nonreletivistic_energies)):
-        psi_analytic = psi_close_form(x, n, L)
-        pdf_analytic = pdf_close_form(x, n, L)
-    
+    for i, (n, E_analytic) in enumerate(zip(principal_quantum_numbers, nonreletivistic_energies)):    
         l1, = axs[i].plot(_x, psi_close_form(_x, n, L), 'b-')
         l2, = axs[i].plot(_x, pdf_close_form(_x, n, L), 'r-')
         l3, = axs[i].plot(x, psi[:, i], 'bo', markersize=5, alpha=0.8)
         l4, = axs[i].plot(x, pdf[:, i], 'ro', markersize=5, alpha=0.8)
 
+        pdf_analytic = pdf_close_form(x, n, L)
         axs[i].set_title(f'RMSE = {np.round(rmse(pdf_analytic, pdf[:, i]), 5)}')
         axs[i].legend([l1, l2, (l3, l4)], [r'$\psi(x)$', r'$|\psi(x)|^2$', 'FDM'], 
                       handler_map={tuple: HandlerTuple(ndivide=None)})
