@@ -19,10 +19,10 @@ Access `schrodinger` directory
 $ cd schrodinger
 ```
 
-Create new environment named `schrodinger_tf2_gpu`
+Create new environment named `schrodinger_ad`
 
 ```bash
-$ conda env create -f environment.yml -n schrodinger_tf2_gpu
+$ conda env create -f environment.yml -n schrodinger_ad
 ```
 
 ## Use
@@ -30,7 +30,7 @@ $ conda env create -f environment.yml -n schrodinger_tf2_gpu
 Activate the environment
 
 ```bash
-$ conda activate schrodinger_tf2_gpu
+$ conda activate schrodinger_ad
 ```
 
 Run the notebook
@@ -50,7 +50,7 @@ $ conda deactivate
 Remove the environment and its dependencies
 
 ```bash
-$ conda remove -n schrodinger_tf2_gpu --all
+$ conda remove -n schrodinger_ad --all
 ```
 
 ## Requirements
