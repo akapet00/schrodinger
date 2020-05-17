@@ -55,8 +55,6 @@ $ conda remove -n schrodinger_ad --all
 
 ## Requirements
 
-Linux machine with Nvidia GPU support, for more details visit [TensorFlow official hardware & software requirements](https://www.tensorflow.org/install/gpu).
-
 Library dependencies are listed in [environment.yml](https://github.com/antelk/schrodinger/environment.yml).
 
 ## License
