@@ -3,6 +3,6 @@ dependencies:
   - scipy=1.4.1=py37h0b6359f_0
   - numpy=1.18.1=py37h4f9e942_0
   - scikit-learn=0.22.1=py37hd81dba3_0
-  - tensorflow-gpu=2.1.0=h0d30ee6_0
+  - autograd=1.3=py_0
   - matplotlib=3.1.3=py37_0
   - seaborn=0.10.0=py_0
