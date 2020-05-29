@@ -1,8 +1,8 @@
 dependencies:
-  - python=3.7.7=hcf32534_0_cpython
-  - scipy=1.4.1=py37h0b6359f_0
-  - numpy=1.18.1=py37h4f9e942_0
-  - scikit-learn=0.22.1=py37hd81dba3_0
-  - autograd=1.3=py_0
-  - matplotlib=3.1.3=py37_0
-  - seaborn=0.10.0=py_0
+  - python=3.7.7
+  - scipy=1.4.1
+  - numpy=1.18.1
+  - scikit-learn=0.22.1
+  - autograd
+  - matplotlib
+  - seaborn
