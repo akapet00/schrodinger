@@ -3,6 +3,9 @@ import seaborn as sns
 sns.set()
 import numpy as np
 from scipy.integrate import quad
+
+import sys
+sys.path.append('../')
 from utils.plotting import latexconfig
 latexconfig()
 
