@@ -4,27 +4,18 @@ from autograd import elementwise_grad as egrad
 from autograd.misc.flatten import flatten
 
 from scipy.integrate import simps 
-from scipy.constants import hbar, m_e 
 from scipy.optimize import minimize
 
-def sigmoid(z):
-    """Sigmoid activation function implementation."""
-    return 1.0/(1.0 + np.exp(-z))
+from neural_schroedinger.timer import Timer
 
-def tanh(z):
-    """Hyperbolic tan activation function implementation."""
-    return np.tanh(z)
-
-def relu(z, alpha=0., max_value=None, threshold=0.):
-    """Rectified linear activation function implementation.
-    Acquired from keras.backend library.
-    """
-    if max_value is None:
-        max_value = np.inf
-        above_threshold = x * (x >= threshold)
-        above_threshold = np.clip(above_threshold, 0.0, max_value)
-        below_threshold = alpha * (x - threshold) * (x < threshold)
-    return below_threshold + above_threshold
+from neural_schroedinger.activations import (tanh, sigmoid, relu, softplus, elu)
+activation_dispatcher = {
+    'tanh': tanh,
+    'sigmoid': sigmoid,
+    'relu': relu,
+    'softplus': softplus,
+    'elu': elu,
+}
 
 def _init_weights(sizes):
     """Initialize weights and biases of a feed-forward 
@@ -74,7 +65,7 @@ def _predict(params, x, bcs, activation):
     return sum(bcs) + x*(1-x) * out
 
 # 1st derivative of NN output
-_predict_x = egrad(_predict, argnum=1)
+_predict_x = egrad(_predict, argrnum=1)
 
 # 2nd derivative of NN output
 _predict_xx = egrad(egrad(_predict, argnum=1), argnum=1)
@@ -95,7 +86,7 @@ class NN(object):
         sizes (list): Number of units per layer. 
     """
 
-    def __init__(self, f, x, bcs, sizes, activation=tanh):
+    def __init__(self, f, x, bcs, sizes, activation='tanh'):
         assert bcs is not tuple, \
             'Boundary conditions must be inside the tuple.'
         assert sizes is not list, \
@@ -108,7 +99,11 @@ class NN(object):
         self.x = x 
         self.bcs = bcs 
         self.sizes = sizes 
-        self.activation = activation
+        try:
+            self.activation = activation_dispatcher[activation]
+        except KeyError:
+            raise ValueError('Invalid activation function input.')
+    
         self.loss = 0 
         self.reset_weights()
 
@@ -170,10 +165,12 @@ class NN(object):
                 at scipy.optimize.minimize section.
             maxiter (int, optional): Number of training iterations.
         """
-
+        t = Timer()
+        t.start()
         opt = minimize(self.loss_wrap, x0=self.flattened_params,
                         jac=grad(self.loss_wrap), method=method,
                         options={'disp':True, 'maxiter':maxiter})
+        t.stop()
         self.flattened_params = opt.x 
         self.params_list = self.unflat_func(opt.x)
     

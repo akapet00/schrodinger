@@ -1,4 +1,3 @@
-import time
 import argparse
 
 import autograd.numpy as np 
@@ -8,11 +7,18 @@ import matplotlib.pyplot as plt
 
 from neural_schroedinger.solver import NN
 
-# parser = argparse.ArgumentParser('Infinite potential well demo')
-# parser.add_argument()
+parser = argparse.ArgumentParser('Infinite potential well demo')
+parser.add_argument('--training_points', type=int, default=50)
+parser.add_argument('--hidden_layers', type=int, default=1)
+parser.add_argument('--hidden_units', type=int, default=10)
+parser.add_argument('--activation', type=str, choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus'], default='tanh')
+parser.add_argument('--optimizer', type=str, choices=['lbfgs', 'bfgs'], default='bfgs')
+parser.add_argument('--iteration', type=int, default=2000)
+parser.add_argument('--quantum_state', type=int, default=1)
+args = parser.parse_args()
 
 L = 1
-n = 1
+n = args.quantum_state
 
 def psi(x, n):
     A = np.sqrt(2/L)
@@ -25,24 +31,18 @@ def f(x, y):
     return -(n**2 * h**2 / (8 * m_e))*2*m_e/hbar**2*y
 
 # generate data 
-x = np.linspace(0, 1, 50).reshape(-1, 1)
+x = np.linspace(0, 1, args.training_points).reshape(-1, 1)
 bcs = (0.0, 0.0)
 psi_anal = psi(x, n) 
 pdf_anal = pdf(x, n) 
 I_anal = simps(pdf_anal.ravel(), x.ravel())
 
-sizes = [
-    x.shape[1], 
-    10,
-    10, 
-    1]
-model = NN(f, x, bcs, sizes=sizes)
+sizes = [1] + args.hidden_layers * [args.hidden_units] + [1]
+activation = args.activation
+model = NN(f, x, bcs, sizes=sizes, activation=activation)
 print(model)
 
-start = time.time() 
-model.fit(maxiter=10000)
-end = time.time() 
-print(f'\nTraining time: {round((end - start), 4)} s')
+model.fit(method=args.optimizer, maxiter=args.iteration)
 
 psi, _ = model.predict() 
 pdf = psi**2 
