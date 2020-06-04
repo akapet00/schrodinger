@@ -150,9 +150,9 @@ class NN(object):
         I = simps((y_pred**2).ravel(), x.ravel())
 
         _H = -hbar/(2*m_e) * y_xx_pred
-        E = I * simps(np.conjugate(y_pred).ravel() * _H.ravel(), x.ravel())
+        E = simps(np.conjugate(y_pred).ravel() * _H.ravel(), x.ravel())/I
 
-        loss_normal = I * np.mean((_H.ravel() - E * y_pred.ravel())**2)
+        loss_normal = 1/I * sum((_H.ravel() - E * y_pred.ravel())**2)
         if type(loss_normal) is autograd.numpy.numpy_boxes.ArrayBox:
             print(f'loss = {loss_normal._value}')
         else: print(f'loss = {loss_normal}')
@@ -193,7 +193,7 @@ class NN(object):
         t = Timer()
         t.start()
         opt = minimize(self.loss_wrap, x0=self.flattened_params,
-                        jac=jacobian(self.loss_wrap), method=method,
+                        jac=grad(self.loss_wrap), method=method,
                         tol=tol,
                         options={'disp':True, 'maxiter':maxiter})
         t.stop()
@@ -223,5 +223,5 @@ class NN(object):
                                     self.bcs, self.activation)
             return y_pred, y_xx_pred
         else:
-            y_pred = predict_order2(params_list, x, y0)
+            y_pred = _predict(params_list, x, self.bcs, self.activation)
             return y_pred_list
