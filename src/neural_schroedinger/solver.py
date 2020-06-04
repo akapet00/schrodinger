@@ -1,20 +1,23 @@
+import autograd
 import autograd.numpy as np 
-from autograd import grad 
+from autograd import grad, jacobian
 from autograd import elementwise_grad as egrad 
 from autograd.misc.flatten import flatten
 
 from scipy.integrate import simps 
 from scipy.optimize import minimize
+from scipy.constants import hbar, m_e
 
 from neural_schroedinger.timer import Timer
 
-from neural_schroedinger.activations import (tanh, sigmoid, relu, softplus, elu)
+from neural_schroedinger.activations import (tanh, sigmoid, relu, softplus, elu, prelu)
 activation_dispatcher = {
     'tanh': tanh,
     'sigmoid': sigmoid,
     'relu': relu,
     'softplus': softplus,
     'elu': elu,
+    'prelu': prelu,
 }
 
 def _init_weights(sizes):
@@ -138,16 +141,26 @@ class NN(object):
         x = self.x 
         f = self.f 
         bcs = self.bcs
-
-        y_pred_list = [] 
-        dydx_pred_list = [] 
-        dydxdx_pred_list = []
             
         y_pred = _predict(params, x, bcs, self.activation)
         y_xx_pred = _predict_xx(params, x, bcs, self.activation)
-        f_pred = f(x, y_pred)
 
-        return np.mean((y_xx_pred - f_pred)**2) 
+        # normalized loss function
+        I = simps((y_pred**2).ravel(), x.ravel())
+
+        _H = -hbar/(2*m_e) * y_xx_pred
+        E = I * simps(np.conjugate(y_pred).ravel() * _H.ravel(), x.ravel())
+
+        loss_normal = I * np.mean((_H.ravel() - E * y_pred.ravel())**2)
+        if type(loss_normal) is autograd.numpy.numpy_boxes.ArrayBox:
+            print(f'loss = {loss_normal._value}')
+        else: print(f'loss = {loss_normal}')
+
+        # # l-2 norm loss function
+        # f_pred = f(x, y_pred)
+        # l_2 = np.mean((y_xx_pred - f_pred)**2) 
+
+        return loss_normal
     
     def loss_wrap(self, flattened_params):
         """Unflatten the parameter list."""
