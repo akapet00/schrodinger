@@ -199,7 +199,7 @@ class NN(object):
         t.stop()
         self.flattened_params = opt.x 
         self.params_list = self.unflat_func(opt.x)
-    
+            
     def predict(self, x=None, params_list=None):
         """Generate the output with trained NN.
 
