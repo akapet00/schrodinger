@@ -16,7 +16,7 @@ parser.add_argument('-l', '--hidden_layers', type=int, default=1,
 parser.add_argument('-n', '--hidden_units', type=int, default=10,
     help='Number of hidden units per hidden layer.')
 parser.add_argument('-a', '--activation', type=str, default='tanh',
-    choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus'], 
+    choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus', 'prelu'], 
     help='Activation function for both input and hidden layers.')
 parser.add_argument('-o', '--optimizer', type=str, default='bfgs',
     choices=['lbfgs', 'bfgs'], 
