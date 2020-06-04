@@ -23,6 +23,8 @@ parser.add_argument('-o', '--optimizer', type=str, default='bfgs',
     help='Algorithm for the minimization of loss function.')
 parser.add_argument('-i', '--iteration', type=int, default=2000,
     help='Number of training iterations for optimizer.')
+parser.add_argument('-t', '--tolerance', type=float, default=1e-7,
+    help='Optimizer threshold value.')
 parser.add_argument('-q', '--quantum_state', type=int, default=1,
     help='Principal quantum number - 1, 2, 3, ...')
 args = parser.parse_args()
@@ -47,7 +49,7 @@ psi_anal = psi(x, n)
 pdf_anal = pdf(x, n) 
 I_anal = simps(pdf_anal.ravel(), x.ravel())
 
-sizes = [1] + args.hidden_layers * [args.hidden_units] + [1]
+sizes = [x.shape[1]] + args.hidden_layers * [args.hidden_units] + [1]
 activation = args.activation
 model = NN(f, x, bcs, sizes=sizes, activation=activation)
 print(model)
