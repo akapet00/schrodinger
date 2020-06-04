@@ -8,13 +8,23 @@ import matplotlib.pyplot as plt
 from neural_schroedinger.solver import NN
 
 parser = argparse.ArgumentParser('Infinite potential well demo')
-parser.add_argument('--training_points', type=int, default=50)
-parser.add_argument('--hidden_layers', type=int, default=1)
-parser.add_argument('--hidden_units', type=int, default=10)
-parser.add_argument('--activation', type=str, choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus'], default='tanh')
-parser.add_argument('--optimizer', type=str, choices=['lbfgs', 'bfgs'], default='bfgs')
-parser.add_argument('--iteration', type=int, default=2000)
-parser.add_argument('--quantum_state', type=int, default=1)
+parser.add_argument('-x', '--training_points', type=int, default=50,
+    help='Number of grid points over the x-axis that will serve\
+         as training points.')
+parser.add_argument('-l', '--hidden_layers', type=int, default=1,
+    help='Number of hidden layers.')
+parser.add_argument('-n', '--hidden_units', type=int, default=10,
+    help='Number of hidden units per hidden layer.')
+parser.add_argument('-a', '--activation', type=str, default='tanh',
+    choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus'], 
+    help='Activation function for both input and hidden layers.')
+parser.add_argument('-o', '--optimizer', type=str, default='bfgs',
+    choices=['lbfgs', 'bfgs'], 
+    help='Algorithm for the minimization of loss function.')
+parser.add_argument('-i', '--iteration', type=int, default=2000,
+    help='Number of training iterations for optimizer.')
+parser.add_argument('-q', '--quantum_state', type=int, default=1,
+    help='Principal quantum number - 1, 2, 3, ...')
 args = parser.parse_args()
 
 L = 1
