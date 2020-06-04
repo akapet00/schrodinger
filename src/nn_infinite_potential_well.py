@@ -19,7 +19,7 @@ parser.add_argument('-a', '--activation', type=str, default='tanh',
     choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus', 'prelu'], 
     help='Activation function for both input and hidden layers.')
 parser.add_argument('-o', '--optimizer', type=str, default='bfgs',
-    choices=['lbfgs', 'bfgs'], 
+    choices=['BFGS', 'L-BFGS-B', 'Newton-CG'], 
     help='Algorithm for the minimization of loss function.')
 parser.add_argument('-i', '--iteration', type=int, default=2000,
     help='Number of training iterations for optimizer.')
@@ -54,7 +54,7 @@ activation = args.activation
 model = NN(f, x, bcs, sizes=sizes, activation=activation)
 print(model)
 
-model.fit(method=args.optimizer, maxiter=args.iteration)
+model.fit(method=args.optimizer, maxiter=args.iteration, tol=args.tolerance)
 
 psi, _ = model.predict() 
 pdf = psi**2 
@@ -68,7 +68,7 @@ print(f'Integral of neural solution is {I}')
 fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, squeeze=True)
 
 # analytical
-#ax[0].plot(x, psi_anal, 'k--', label=r'$\psi(x)$')
+ax[0].plot(x, psi_anal, 'k--', label=r'$\psi(x)$')
 ax[0].plot(x, pdf_anal, 'k-', label=r'$|\psi(x)|^2$')
 ax[0].grid()
 ax[0].legend()

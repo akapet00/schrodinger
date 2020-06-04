@@ -10,7 +10,8 @@ from scipy.constants import hbar, m_e
 
 from neural_schroedinger.timer import Timer
 
-from neural_schroedinger.activations import (tanh, sigmoid, relu, softplus, elu, prelu)
+from neural_schroedinger.activations import (tanh, sigmoid, relu, 
+                                             softplus, elu, prelu)
 activation_dispatcher = {
     'tanh': tanh,
     'sigmoid': sigmoid,
@@ -79,7 +80,7 @@ class NN(object):
     'Artificial Neural Network Methods in Quantum Mechanics'
     ArXiV link: https://arxiv.org/abs/quant-ph/9705029
 
-    The code is heavily inspired by https://github.com/JiaweiZhuang/AM205_final.
+    The code is heavily inspired by https://github.com/JiaweiZhuang/AM205_final
 
     Args
     ----
@@ -163,12 +164,23 @@ class NN(object):
         return loss_normal
     
     def loss_wrap(self, flattened_params):
-        """Unflatten the parameter list."""
+        """Unflatten the parameter list.
+        
+        Args
+        ----
+            flattened_params (autograd.numpy.ndarray): Flattend weights and 
+                                                       biases.
+
+        Returns
+        -------
+            autograd.numpy.numpy_boxes.ArrayBox: of the value the loss function
+                                                 returns 
+        """
 
         params_list = self.unflat_func(flattened_params) 
         return self.loss_fun(params_list) 
 
-    def fit(self, method='BFGS', maxiter=2000):
+    def fit(self, method='BFGS', maxiter=2000, tol=1e-7):
         """Train the network.
         
         Args
@@ -181,7 +193,8 @@ class NN(object):
         t = Timer()
         t.start()
         opt = minimize(self.loss_wrap, x0=self.flattened_params,
-                        jac=grad(self.loss_wrap), method=method,
+                        jac=jacobian(self.loss_wrap), method=method,
+                        tol=tol,
                         options={'disp':True, 'maxiter':maxiter})
         t.stop()
         self.flattened_params = opt.x 
@@ -206,7 +219,8 @@ class NN(object):
         
         if params_list is None:
             y_pred = _predict(self.params_list, x, self.bcs, self.activation)
-            y_xx_pred = _predict_xx(self.params_list, x, self.bcs, self.activation)
+            y_xx_pred = _predict_xx(self.params_list, x, 
+                                    self.bcs, self.activation)
             return y_pred, y_xx_pred
         else:
             y_pred = predict_order2(params_list, x, y0)
