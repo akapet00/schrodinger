@@ -6,3 +6,4 @@ dependencies:
   - autograd
   - matplotlib
   - seaborn
+  - h5py
