@@ -1,17 +1,16 @@
+from . import Timer
+from . import (tanh, sigmoid, relu, 
+               softplus, elu, prelu)
 import autograd
 import autograd.numpy as np 
+np.random.seed(42)
 from autograd import grad, jacobian
 from autograd import elementwise_grad as egrad 
 from autograd.misc.flatten import flatten
-
 from scipy.integrate import simps 
 from scipy.optimize import minimize
 from scipy.constants import hbar, m_e
 
-from neural_schroedinger.timer import Timer
-
-from neural_schroedinger.activations import (tanh, sigmoid, relu, 
-                                             softplus, elu, prelu)
 activation_dispatcher = {
     'tanh': tanh,
     'sigmoid': sigmoid,
@@ -76,21 +75,20 @@ _predict_xx = egrad(egrad(_predict, argnum=1), argnum=1)
 
 class NN(object):
     """Feed-forward neural network model with integrated physical knowledge.
-    This impementation is based on the paper by Lagaris, I.E et al:
+    This impementation is based on the paper by Lagaris, I.E. et al:
     'Artificial Neural Network Methods in Quantum Mechanics'
     ArXiV link: https://arxiv.org/abs/quant-ph/9705029
 
-    The code is heavily inspired by https://github.com/JiaweiZhuang/AM205_final
+    The code is inspired by https://github.com/JiaweiZhuang/AM205_final
 
     Args
     ----
-        f (callable): Right-hand-side function. 
         x (autograd.numpy.ndarray): Input spatial coordinates. 
         bcs (tuple): Tuple of boundary conditions.
         sizes (list): Number of units per layer. 
     """
 
-    def __init__(self, f, x, bcs, sizes, activation='tanh'):
+    def __init__(self, x, bcs, sizes, activation='tanh'):
         assert bcs is not tuple, \
             'Boundary conditions must be inside the tuple.'
         assert sizes is not list, \
@@ -99,7 +97,6 @@ class NN(object):
             'x must be a single column autograd.numpy.ndarray.'
         assert sizes[0] == x.shape[1], \
             'Neural network input shape is ill-defined.'        
-        self.f = f 
         self.x = x 
         self.bcs = bcs 
         self.sizes = sizes 
@@ -140,26 +137,20 @@ class NN(object):
         """
 
         x = self.x 
-        f = self.f 
         bcs = self.bcs
             
         y_pred = _predict(params, x, bcs, self.activation)
         y_xx_pred = _predict_xx(params, x, bcs, self.activation)
 
-        # normalized loss function
         I = simps((y_pred**2).ravel(), x.ravel())
+        H = -hbar**2/(2*m_e) * y_xx_pred
+        E = simps(np.conjugate(y_pred).ravel() * H.ravel(), x.ravel()) / I
 
-        _H = -hbar/(2*m_e) * y_xx_pred
-        E = simps(np.conjugate(y_pred).ravel() * _H.ravel(), x.ravel())/I
+        loss_normal = np.sum((H.ravel() - E * y_pred.ravel())**2) / I
 
-        loss_normal = 1/I * sum((_H.ravel() - E * y_pred.ravel())**2)
         if type(loss_normal) is autograd.numpy.numpy_boxes.ArrayBox:
             print(f'loss = {loss_normal._value}')
         else: print(f'loss = {loss_normal}')
-
-        # # l-2 norm loss function
-        # f_pred = f(x, y_pred)
-        # l_2 = np.mean((y_xx_pred - f_pred)**2) 
 
         return loss_normal
     
