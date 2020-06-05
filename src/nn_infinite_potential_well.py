@@ -20,7 +20,7 @@ parser.add_argument('-a', '--activation', type=str, default='tanh',
     choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus', 'prelu'], 
     help='Activation function for both input and hidden layers.')
 parser.add_argument('-o', '--optimizer', type=str, default='bfgs',
-    choices=['BFGS', 'L-BFGS-B', 'Newton-CG'], 
+    choices=['BFGS'], 
     help='Algorithm for the minimization of loss function.')
 parser.add_argument('-i', '--iteration', type=int, default=2000,
     help='Number of training iterations for optimizer.')
@@ -62,7 +62,7 @@ ax[0].plot(x, pdf_anal_sampled, 'k-', label=r'$|\psi(x)|^2$')
 ax[0].grid()
 ax[0].legend()
 # neural network
-#ax[1].plot(x, psi, 'k--', label=r'$\hat\psi(x)$')
+ax[1].plot(x, psi, 'k--', label=r'$\hat\psi(x)$')
 ax[1].plot(x, pdf, 'k-', label=r'$|\hat\psi(x)|^2$')
 ax[1].grid()
 ax[1].legend()

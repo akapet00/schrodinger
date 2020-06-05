@@ -3,8 +3,7 @@ from . import (tanh, sigmoid, relu,
                softplus, elu, prelu)
 import autograd
 import autograd.numpy as np 
-np.random.seed(42)
-from autograd import grad, jacobian
+from autograd import grad
 from autograd import elementwise_grad as egrad 
 from autograd.misc.flatten import flatten
 from scipy.integrate import simps 
@@ -32,6 +31,7 @@ def _init_weights(sizes):
     -------
         list: weights and biases
     """
+
     weights = [np.random.randn(x, y) for x, y in zip(sizes[:-1], sizes[1:])]
     biases = [np.zeros(y) for y in sizes[1:]]
     params = [] 
@@ -40,7 +40,7 @@ def _init_weights(sizes):
         params.append(B)
     return params
 
-def _predict(params, x, bcs, activation):
+def _predict(params, x, activation):
     """Calculate the output of the NN.
     
     Args
@@ -54,6 +54,7 @@ def _predict(params, x, bcs, activation):
     -------
         float: the output of a forward pass
     """
+
     weights, biases = [], []
     for i, param in enumerate(params):
         if i%2==0:
@@ -65,13 +66,13 @@ def _predict(params, x, bcs, activation):
     for W, B in zip(weights[:-1], biases[:-1]):
         out = activation(out @ W + B)
     out = out @ weights[-1] + biases[-1]
-    return sum(bcs) + x*(1-x) * out
+    return out
 
 # 1st derivative of NN output
-_predict_x = egrad(_predict, argrnum=1)
+_predict_x = egrad(_predict, argnum=1)
 
 # 2nd derivative of NN output
-_predict_xx = egrad(egrad(_predict, argnum=1), argnum=1)
+_predict_xx = egrad(_predict_x, argnum=1)
 
 class NN(object):
     """Feed-forward neural network model with integrated physical knowledge.
@@ -139,20 +140,23 @@ class NN(object):
         x = self.x 
         bcs = self.bcs
             
-        y_pred = _predict(params, x, bcs, self.activation)
-        y_xx_pred = _predict_xx(params, x, bcs, self.activation)
+        y_pred = _predict(params, x, self.activation)
+        y_xx_pred = _predict_xx(params, x, self.activation)
 
         I = simps((y_pred**2).ravel(), x.ravel())
-        H = -hbar**2/(2*m_e) * y_xx_pred
+        H = -(hbar**2/(2*m_e)) * y_xx_pred
         E = simps(np.conjugate(y_pred).ravel() * H.ravel(), x.ravel()) / I
 
         loss_normal = np.sum((H.ravel() - E * y_pred.ravel())**2) / I
-
+        loss_normal += (y_pred[0] - bcs[0])**2 + (y_pred[-1] - bcs[-1])**2
+        
         if type(loss_normal) is autograd.numpy.numpy_boxes.ArrayBox:
             print(f'loss = {loss_normal._value}')
-        else: print(f'loss = {loss_normal}')
-
+        else: 
+            print(f'loss = {loss_normal}')
+         
         return loss_normal
+        
     
     def loss_wrap(self, flattened_params):
         """Unflatten the parameter list.
@@ -181,12 +185,16 @@ class NN(object):
                 at scipy.optimize.minimize section.
             maxiter (int, optional): Number of training iterations.
         """
+
         t = Timer()
         t.start()
-        opt = minimize(self.loss_wrap, x0=self.flattened_params,
-                        jac=grad(self.loss_wrap), method=method,
-                        tol=tol,
-                        options={'disp':True, 'maxiter':maxiter})
+        opt = minimize(
+            self.loss_wrap, 
+            x0=self.flattened_params,
+            jac=grad(self.loss_wrap), 
+            method=method,
+            tol=tol,
+            options={'disp':True, 'maxiter':maxiter})
         t.stop()
         self.flattened_params = opt.x 
         self.params_list = self.unflat_func(opt.x)
@@ -209,10 +217,9 @@ class NN(object):
             x = self.x 
         
         if params_list is None:
-            y_pred = _predict(self.params_list, x, self.bcs, self.activation)
-            y_xx_pred = _predict_xx(self.params_list, x, 
-                                    self.bcs, self.activation)
+            y_pred = _predict(self.params_list, x, self.activation)
+            y_xx_pred = _predict_xx(self.params_list, x, self.activation)
             return y_pred, y_xx_pred
         else:
-            y_pred = _predict(params_list, x, self.bcs, self.activation)
+            y_pred = _predict(params_list, x, self.activation)
             return y_pred_list
