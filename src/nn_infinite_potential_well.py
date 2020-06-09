@@ -2,7 +2,7 @@ from neural_schroedinger import NN
 
 import argparse
 import autograd.numpy as np 
-from scipy.integrate import simps
+from scipy.integrate import simps, quad
 from scipy.constants import h, hbar, m_e 
 import matplotlib.pyplot as plt
 
@@ -20,7 +20,7 @@ parser.add_argument('-a', '--activation', type=str, default='tanh',
     choices=['tanh', 'sigmoid', 'relu', 'elu', 'softplus', 'prelu'], 
     help='Activation function for both input and hidden layers.')
 parser.add_argument('-o', '--optimizer', type=str, default='bfgs',
-    choices=['BFGS'], 
+    choices=['BFGS', 'L-BFGS-B'], 
     help='Algorithm for the minimization of loss function.')
 parser.add_argument('-i', '--iteration', type=int, default=2000,
     help='Number of training iterations for optimizer.')
@@ -39,13 +39,14 @@ psi_anal = lambda x, n, L : np.sqrt(2/L) * np.sin(n * np.pi / L * x)
 pdf_anal = lambda x, n, L: psi_anal(x, n, L)**2
 psi_anal_sampled = psi_anal(x, args.quantum_state, args.domain_length) 
 pdf_anal_sampled = pdf_anal(x, args.quantum_state, args.domain_length) 
-I_anal = simps(pdf_anal_sampled.ravel(), x.ravel())
+I_anal, _ = quad(pdf_anal, min(x), max(x), args=(args.quantum_state, args.domain_length))
 
 # neural network architecture and training
 sizes = [x.shape[1]] + args.hidden_layers * [args.hidden_units] + [1]
 model = NN(x, bcs, sizes=sizes, activation=args.activation)
 print(model) 
 model.fit(method=args.optimizer, maxiter=args.iteration, tol=args.tolerance)
+model.plot_loss(log=False)
 psi, _ = model.predict() 
 pdf = psi**2 
 I = simps(pdf.ravel(), x.ravel())

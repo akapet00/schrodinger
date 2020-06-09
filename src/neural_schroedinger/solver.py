@@ -3,12 +3,13 @@ from . import (tanh, sigmoid, relu,
                softplus, elu, prelu)
 import autograd
 import autograd.numpy as np 
-from autograd import grad
+from autograd import grad, jacobian
 from autograd import elementwise_grad as egrad 
 from autograd.misc.flatten import flatten
 from scipy.integrate import simps 
 from scipy.optimize import minimize
 from scipy.constants import hbar, m_e
+import matplotlib.pyplot as plt
 
 activation_dispatcher = {
     'tanh': tanh,
@@ -34,10 +35,13 @@ def _init_weights(sizes):
 
     weights = [np.random.randn(x, y) for x, y in zip(sizes[:-1], sizes[1:])]
     biases = [np.zeros(y) for y in sizes[1:]]
+    b = 10.
+
     params = [] 
     for W, B in zip(weights, biases):
         params.append(W)
         params.append(B)
+    params.append(b)
     return params
 
 def _predict(params, x, activation):
@@ -54,9 +58,8 @@ def _predict(params, x, activation):
     -------
         float: the output of a forward pass
     """
-
     weights, biases = [], []
-    for i, param in enumerate(params):
+    for i, param in enumerate(params[:-1]):
         if i%2==0:
             weights.append(param)
         else:
@@ -66,7 +69,9 @@ def _predict(params, x, activation):
     for W, B in zip(weights[:-1], biases[:-1]):
         out = activation(out @ W + B)
     out = out @ weights[-1] + biases[-1]
-    return out
+    
+    b = params[-1]
+    return np.exp(-b * x**2) * out
 
 # 1st derivative of NN output
 _predict_x = egrad(_predict, argnum=1)
@@ -110,11 +115,12 @@ class NN(object):
         self.reset_weights()
 
     def __str__(self):
-        return(f'Neural ODE Solver \n'
-            f'----------------- \n'
+        return(f'Neural Schroedinger Solver \n'
+            f'------------------------------------- \n'
             f'Boundary condtions:        {self.bcs} \n'
             f'Neural architecture:       {self.sizes} \n'
-            f'Number of training points: {self.x.size}')
+            f'Number of training points: {self.x.size} \n'
+            f'------------------------------------- \n')
 
     def __repr__(self):
         return self.__str__()
@@ -144,19 +150,11 @@ class NN(object):
         y_xx_pred = _predict_xx(params, x, self.activation)
 
         I = simps((y_pred**2).ravel(), x.ravel())
-        H = -(hbar**2/(2*m_e)) * y_xx_pred
-        E = simps(np.conjugate(y_pred).ravel() * H.ravel(), x.ravel()) / I
+        H = - hbar**2/(2*m_e) * y_xx_pred
+        E = simps((np.conj(y_pred) * H).ravel(), x.ravel()) / I
 
-        loss_normal = np.sum((H.ravel() - E * y_pred.ravel())**2) / I
-        loss_normal += (y_pred[0] - bcs[0])**2 + (y_pred[-1] - bcs[-1])**2
-        
-        if type(loss_normal) is autograd.numpy.numpy_boxes.ArrayBox:
-            print(f'loss = {loss_normal._value}')
-        else: 
-            print(f'loss = {loss_normal}')
-         
-        return loss_normal
-        
+        return np.sum((H - E * y_pred)**2) / I \
+            + (y_pred[0] - bcs[0])**2 + (y_pred[-1] - bcs[-1])**2
     
     def loss_wrap(self, flattened_params):
         """Unflatten the parameter list.
@@ -175,7 +173,7 @@ class NN(object):
         params_list = self.unflat_func(flattened_params) 
         return self.loss_fun(params_list) 
 
-    def fit(self, method='BFGS', maxiter=2000, tol=1e-7):
+    def fit(self, method='BFGS', maxiter=2000, tol=1e-7, iprint=10):
         """Train the network.
         
         Args
@@ -184,18 +182,35 @@ class NN(object):
                 The full list is given in the official Scipy docs
                 at scipy.optimize.minimize section.
             maxiter (int, optional): Number of training iterations.
+            tol (float, optional): Optimizer tolerance.
+            iprint (int, optional): Every iprint iteration print loss.
         """
+        self.p = [] 
+        global counter 
+        counter = 0 
+        global loss_arr
+        loss_arr = []
+        def print_loss(p):
+            """Optimizer callback."""
+            global counter
+            if counter % iprint == 0:
+                print(f'Iteration: {counter}\t Loss: {self.loss_wrap(p)}')
+            counter += 1
+            self.p.append(self.unflat_func(p))
+            loss_arr.append(self.loss_wrap(p))
 
         t = Timer()
         t.start()
         opt = minimize(
-            self.loss_wrap, 
+            fun=self.loss_wrap, 
             x0=self.flattened_params,
             jac=grad(self.loss_wrap), 
             method=method,
             tol=tol,
+            callback=print_loss,
             options={'disp':True, 'maxiter':maxiter})
         t.stop()
+        self.loss = loss_arr
         self.flattened_params = opt.x 
         self.params_list = self.unflat_func(opt.x)
             
@@ -222,4 +237,22 @@ class NN(object):
             return y_pred, y_xx_pred
         else:
             y_pred = _predict(params_list, x, self.activation)
-            return y_pred_list
+            return y_pred
+        
+    def plot_loss(self, log=True):
+        """Plot value of loss function.
+        
+        Args
+        ----
+        log (Bool, optional): y-axis in log-scale if True.
+        """
+        _, ax = plt.subplots()
+        ax.plot(range(len(loss_arr)), loss_arr, 'k-')
+        if log:
+            ax.set_yscale('log')
+            y_lbl = 'Log-'
+        y_lbl = ''
+        ax.set_xlabel('Iterations')
+        ax.set_ylabel(f'{y_lbl}Loss')
+        plt.grid()
+        plt.show()
