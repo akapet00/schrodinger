@@ -1,6 +1,9 @@
-import numpy as np 
-from sklearn.metrics import mean_squared_error    
-                        
+import autograd.numpy as np
+
+def mse(true, predict):
+    """mean squared error"""
+    return np.mean((true-predict)**2)
+
 def rmse(true, predict):
     """root mean squared error"""
     return np.sqrt(mean_squared_error(true, predict))
