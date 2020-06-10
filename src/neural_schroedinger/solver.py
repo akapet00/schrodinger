@@ -20,7 +20,7 @@ activation_dispatcher = {
     'prelu': prelu,
 }
 
-def _init_weights(sizes):
+def _init_weights(x, sizes):
     """Initialize weights and biases of a feed-forward 
     shallow neural network (NN). 
 
@@ -35,13 +35,11 @@ def _init_weights(sizes):
 
     weights = [np.random.randn(x, y) for x, y in zip(sizes[:-1], sizes[1:])]
     biases = [np.zeros(y) for y in sizes[1:]]
-    b = 10.
 
     params = [] 
     for W, B in zip(weights, biases):
         params.append(W)
         params.append(B)
-    params.append(b)
     return params
 
 def _predict(params, x, activation):
@@ -59,7 +57,7 @@ def _predict(params, x, activation):
         float: the output of a forward pass
     """
     weights, biases = [], []
-    for i, param in enumerate(params[:-1]):
+    for i, param in enumerate(params):
         if i%2==0:
             weights.append(param)
         else:
@@ -70,8 +68,9 @@ def _predict(params, x, activation):
         out = activation(out @ W + B)
     out = out @ weights[-1] + biases[-1]
     
-    b = params[-1]
-    return np.exp(-b * x**2) * out
+    # b = 1
+    # return np.exp(-b * x**2) * out
+    return x*(1-x) * out
 
 # 1st derivative of NN output
 _predict_x = egrad(_predict, argnum=1)
@@ -128,7 +127,7 @@ class NN(object):
     def reset_weights(self):
         """Reset parameters of a NN."""
 
-        self.params_list = _init_weights(sizes=self.sizes)
+        self.params_list = _init_weights(self.x, sizes=self.sizes)
         self.flattened_params, self.unflat_func = flatten(self.params_list)
 
     def loss_fun(self, params):
@@ -152,10 +151,12 @@ class NN(object):
         I = simps((y_pred**2).ravel(), x.ravel())
         H = - hbar**2/(2*m_e) * y_xx_pred
         E = simps((np.conj(y_pred) * H).ravel(), x.ravel()) / I
-
-        return np.sum((H - E * y_pred)**2) / I \
-            + (y_pred[0] - bcs[0])**2 + (y_pred[-1] - bcs[-1])**2
     
+        return np.sum((H - E * y_pred)**2) / I \
+               + (y_pred[0] - bcs[0])**2 + (y_pred[-1] - bcs[-1])**2 \
+               + (y_pred[int(x.shape[0]/2)] - np.sqrt(2))**2
+
+        
     def loss_wrap(self, flattened_params):
         """Unflatten the parameter list.
         
