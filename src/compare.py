@@ -6,6 +6,7 @@ sns.set()
 
 from fdm_inifinite_potential_well import pdf_close_form, fdm
 from fem_inifinite_potential_well import fem
+from neural_schroedinger import NN
 from utils.metrics import rmse
 
 parser = argparse.ArgumentParser(description='Takes the number of grid points in the 1-D mesh.')
@@ -19,7 +20,7 @@ def main():
     N = args.grid_points           # number of finite elements
     xmin = 0.0
     L = 1.0 
-    bcs = (0, 0)    # boundary conditions at x=0 & x=L
+    bcs = (0., 0.)    # boundary conditions at x=0 & x=L
     xmesh = np.linspace(xmin, L, N)
 
     # wave eqn analytical sol for particle in a box problem
@@ -37,7 +38,15 @@ def main():
     fem_rmse = {}
 
     # nn 
-    # placeholder
+    x = xmesh.reshape(-1,1)
+    sizes = [x.shape[1]] + 1 * [40] + [1]
+    model = NN(x, bcs, sizes=sizes)
+    print(model)
+    model.fit(tol=1e-80)
+    ann_psi, _ = model.predict() 
+    ann_pdf = np.zeros(shape=(N, len(principal_quantum_numbers)))
+    ann_pdf[:, 0] = ann_psi.ravel()**2
+    # placeholder of higher energy states
     ann_rmse = {}
     
     # plotting 
@@ -46,13 +55,13 @@ def main():
         i = n-1
         axs[i].plot(xmesh, fdm_pdf[:, i], 'b-', linewidth=2, label=f'FDM')
         axs[i].plot(xmesh, fem_pdf[:, i], 'r-', linewidth=2, label=f'FEM')
-        #axs[i].plot(xmesh, ann_pdf, 'p-.', label=f'ANN')
+        axs[i].plot(xmesh, ann_pdf[:, i], 'g-', linewidth=2, label=f'ANN')
         axs[i].legend(loc='upper right')
 
         # error metrics
         fdm_rmse[n] = np.round(rmse(pdf_analytic[n], fdm_pdf[:, i]), 5)
         fem_rmse[n] = np.round(rmse(pdf_analytic[n], fem_pdf[:, i]), 5)
-        #ann_rmse[n] = np.round(rmse(pdf_analytic[n], ann_pdf[:, i]), 5)
+        ann_rmse[n] = np.round(rmse(pdf_analytic[n], ann_pdf[:, i]), 5)
     plt.xlabel(r'x')
 
     print(f'FDM\n---\n{fdm_rmse}\n\nFEM\n---\n{fem_rmse}\n\nANN\n---\n{ann_rmse}')   
