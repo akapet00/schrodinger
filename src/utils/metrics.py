@@ -6,7 +6,7 @@ def mse(true, predict):
 
 def rmse(true, predict):
     """root mean squared error"""
-    return np.sqrt(mean_squared_error(true, predict))
+    return np.sqrt(mse(true, predict))
 
 def mape(true, predict):
     """mean absolute percentage errror"""

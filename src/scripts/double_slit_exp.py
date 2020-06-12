@@ -6,7 +6,7 @@ import numpy as np
 
 import sys
 sys.path.append('../')
-from utils.plotting import latexconfig
+from src.utils.plotting import latexconfig
 latexconfig()
 
 def double_slit_intensity(a, λ, L, d, x) :

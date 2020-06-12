@@ -6,7 +6,7 @@ from scipy.integrate import quad
 
 import sys
 sys.path.append('../')
-from utils.plotting import latexconfig
+from src.utils.plotting import latexconfig
 latexconfig()
 
 def psi(x, n):
