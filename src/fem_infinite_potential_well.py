@@ -5,9 +5,9 @@ from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerTuple
 import seaborn as sns
-sns.set()
+#sns.set()
 
-from fdm_inifinite_potential_well import psi_close_form, pdf_close_form
+from fdm_infinite_potential_well import psi_close_form, pdf_close_form
 from utils.metrics import rmse
 from utils.plotting import latexconfig
 
