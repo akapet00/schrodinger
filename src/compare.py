@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
 
-from fdm_inifinite_potential_well import pdf_close_form, fdm
-from fem_inifinite_potential_well import fem
+from fdm_infinite_potential_well import pdf_close_form, fdm
+from fem_infinite_potential_well import fem
 from neural_schroedinger import NN
 from utils.metrics import rmse
 
@@ -17,25 +17,21 @@ parser.add_argument('-n', '--grid_points',
 
 def main():
     args = parser.parse_args()
-    N = args.grid_points           # number of finite elements
+    N = args.grid_points
     xmin = 0.0
     L = 1.0 
-    bcs = (0., 0.)    # boundary conditions at x=0 & x=L
+    bcs = (0., 0.)
     xmesh = np.linspace(xmin, L, N)
 
     # wave eqn analytical sol for particle in a box problem
-    principal_quantum_numbers = list(range(1, 6))
-    pdf_analytic = {}
-    for n in principal_quantum_numbers:
-        pdf_analytic[n] = pdf_close_form(xmesh, n, L)
+    principal_quantum_numbers = 1
+    pdf_analytic = pdf_close_form(xmesh, principal_quantum_numbers, L)
 
     # fdm
-    _, _, fdm_pdf = fdm(N, xmin, L, bcs) 
-    fdm_rmse = {}
+    _, _, fdm_pdf = fdm(N, xmin, L, bcs)
 
     # fem 
     _, _, fem_pdf = fem(N-1, xmin, L, bcs)
-    fem_rmse = {}
 
     # nn 
     x = xmesh.reshape(-1,1)
@@ -44,27 +40,16 @@ def main():
     print(model)
     model.fit(tol=1e-80)
     ann_psi, _ = model.predict() 
-    ann_pdf = np.zeros(shape=(N, len(principal_quantum_numbers)))
+    ann_pdf = np.zeros(shape=(N, 1))
     ann_pdf[:, 0] = ann_psi.ravel()**2
-    # placeholder of higher energy states
-    ann_rmse = {}
     
     # plotting 
-    _, axs = plt.subplots(len(principal_quantum_numbers), 1, sharex='all', figsize=(7, 15))
-    for n in principal_quantum_numbers:
-        i = n-1
-        axs[i].plot(xmesh, fdm_pdf[:, i], 'b-', linewidth=2, label=f'FDM')
-        axs[i].plot(xmesh, fem_pdf[:, i], 'r-', linewidth=2, label=f'FEM')
-        axs[i].plot(xmesh, ann_pdf[:, i], 'g-', linewidth=2, label=f'ANN')
-        axs[i].legend(loc='upper right')
-
-        # error metrics
-        fdm_rmse[n] = np.round(rmse(pdf_analytic[n], fdm_pdf[:, i]), 5)
-        fem_rmse[n] = np.round(rmse(pdf_analytic[n], fem_pdf[:, i]), 5)
-        ann_rmse[n] = np.round(rmse(pdf_analytic[n], ann_pdf[:, i]), 5)
+    fig, ax = plt.subplots(1, 1, sharex='all')
+    ax.plot(xmesh, fdm_pdf[:, 0], 'b-', linewidth=2, label=f'FDM')
+    ax.plot(xmesh, fem_pdf[:, 0], 'r-', linewidth=2, label=f'FEM')
+    ax.plot(xmesh, ann_pdf[:, 0], 'g-', linewidth=2, label=f'ANN')
+    ax.legend(loc='upper right')
     plt.xlabel(r'x')
-
-    print(f'FDM\n---\n{fdm_rmse}\n\nFEM\n---\n{fem_rmse}\n\nANN\n---\n{ann_rmse}')   
 
 if __name__ == "__main__":
     main()
