@@ -5,7 +5,7 @@ from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerTuple
 import seaborn as sns
-#sns.set()
+sns.set()
 from utils.plotting import latexconfig
 from utils.metrics import rmse
 

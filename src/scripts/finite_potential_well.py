@@ -44,8 +44,8 @@ def pdf(x):
 
 fix, ax = plt.subplots(figsize=(8, 4))
 # plot the wave function and the probability density
-ax.plot(x, psi(x), 'r--', label=r'$\Psi(x)$')
-ax.plot(x, pdf(x), label=r'$|\Psi|^2$')
+ax.plot(x, psi(x), 'r--', label=r'$\psi(x)$')
+ax.plot(x, pdf(x), label=r'$|\psi|^2$')
 ax.fill_between(np.linspace(np.min(x), -L/2), 
             pdf(np.linspace(np.min(x), -L/2)),
             color='C0', alpha=0.5)
@@ -69,4 +69,3 @@ ax.set_yticklabels([])
 plt.legend(loc='upper center')
 plt.xlabel('$x$')
 plt.show()
-

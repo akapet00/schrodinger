@@ -7,10 +7,6 @@ def latexconfig():
     pgf_latex = {                                       # setup matplotlib to use latex for output
         "pgf.texsystem": "pdflatex",                    # change this if using xetex or lautex
         "text.usetex": True,                            # use LaTeX to write all text
-        "font.family": "serif",                         # default LaTex option
-        "font.serif": [],                               # blank entries should cause plots to inherit fonts from the document
-        "font.sans-serif": [],
-        "font.monospace": [],
         "axes.labelsize": 10,                           # LaTeX default is 10pt font
         "font.size": 10,                                # LaTeX default is 10pt font
         "legend.fontsize": 10,                          # Make the legend/label fonts a little smaller
