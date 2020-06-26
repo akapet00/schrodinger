@@ -4,4 +4,4 @@ dependencies:
   - numpy=1.18.1
   - autograd
   - matplotlib
-  - h5py
+  - seaborn
