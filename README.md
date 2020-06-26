@@ -3,7 +3,7 @@
 [![nbviewer](https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.svg)](https://nbviewer.jupyter.org/github/antelk/schrodinger/blob/master/schrodinger.ipynb)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/antelk/schrodinger/169a38fd40f80795b54db12aa441a9602215e681)
 
-[schrodinger.ipynb](https://github.com/antelk/schrodinger/blob/master/schrodinger.ipynb) notebook serves as an official seminar for the graduate course in Modern Physics and Technology [FEMT08](https://nastava.fesb.unist.hr/nastava/predmeti/11624), taught by professor [Ivica Puljak](https://ivicapuljak.com/). The paper titled [Numerical Solution of the Schrödinger Equation Using a Neural Network Approach](https://github.com/antelk/1d-bioheat-transfer/blob/master/1570655320_prereview.pdf) is using this solver and will appear at Advanced Numerical Methods proceedings of SoftCOM2020 conference.
+[schrodinger.ipynb](https://github.com/antelk/schrodinger/blob/master/schrodinger.ipynb) notebook serves as an official seminar for the graduate course in Modern Physics and Technology [FEMT08](https://nastava.fesb.unist.hr/nastava/predmeti/11624), taught by professor [Ivica Puljak](https://ivicapuljak.com/). The paper titled [Numerical Solution of the Schrödinger Equation Using a Neural Network Approach](https://github.com/antelk/schrodinger/blob/master/1570655320_prereview.pdf) is using this solver and will appear at Advanced Numerical Methods proceedings of SoftCOM2020 conference.
 
 ## Installation 
 
