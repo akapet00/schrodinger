@@ -4,12 +4,14 @@ from . import (tanh, sigmoid, relu,
 import autograd
 import autograd.numpy as np 
 from autograd import grad, jacobian
-from autograd import elementwise_grad as egrad 
+from autograd import elementwise_grad as egrad
+from autograd import holomorphic_grad as hgrad
 from autograd.misc.flatten import flatten
 from scipy.integrate import simps 
 from scipy.optimize import minimize
 from scipy.constants import hbar, m_e
 import matplotlib.pyplot as plt
+
 
 activation_dispatcher = {
     'tanh': tanh,
@@ -19,6 +21,7 @@ activation_dispatcher = {
     'elu': elu,
     'prelu': prelu,
 }
+
 
 def _init_weights(x, sizes):
     """Initialize weights and biases of a feed-forward 
@@ -33,7 +36,10 @@ def _init_weights(x, sizes):
         list: weights and biases
     """
 
-    weights = [np.random.randn(x, y) for x, y in zip(sizes[:-1], sizes[1:])]
+    weights = [
+        np.random.randn(x, y)/np.sqrt(x)
+        for x, y in zip(sizes[:-1], sizes[1:])
+        ]
     biases = [np.zeros(y) for y in sizes[1:]]
 
     params = [] 
@@ -41,6 +47,7 @@ def _init_weights(x, sizes):
         params.append(W)
         params.append(B)
     return params
+
 
 def _predict(params, x, activation):
     """Calculate the output of the NN.
@@ -72,11 +79,14 @@ def _predict(params, x, activation):
     # return np.exp(-b * x**2) * out
     return x*(1-x) * out
 
+
 # 1st derivative of NN output
 _predict_x = egrad(_predict, argnum=1)
 
+
 # 2nd derivative of NN output
 _predict_xx = egrad(_predict_x, argnum=1)
+
 
 class NN(object):
     """Feed-forward neural network model with integrated physical knowledge.
@@ -113,6 +123,7 @@ class NN(object):
         self.loss = 0 
         self.reset_weights()
 
+
     def __str__(self):
         return(f'Neural Schroedinger Solver \n'
             f'------------------------------------- \n'
@@ -121,14 +132,17 @@ class NN(object):
             f'Number of training points: {self.x.size} \n'
             f'------------------------------------- \n')
 
+
     def __repr__(self):
         return self.__str__()
+
 
     def reset_weights(self):
         """Reset parameters of a NN."""
 
         self.params_list = _init_weights(self.x, sizes=self.sizes)
         self.flattened_params, self.unflat_func = flatten(self.params_list)
+
 
     def loss_fun(self, params):
         """Returns total loss for given parameters.
@@ -174,6 +188,7 @@ class NN(object):
         params_list = self.unflat_func(flattened_params) 
         return self.loss_fun(params_list) 
 
+
     def fit(self, method='BFGS', maxiter=2000, tol=1e-7, iprint=10):
         """Train the network.
         
@@ -214,7 +229,8 @@ class NN(object):
         self.loss = loss_arr
         self.flattened_params = opt.x 
         self.params_list = self.unflat_func(opt.x)
-            
+
+
     def predict(self, x=None, params_list=None):
         """Generate the output with trained NN.
 
@@ -240,6 +256,7 @@ class NN(object):
             y_pred = _predict(params_list, x, self.activation)
             return y_pred
         
+
     def plot_loss(self, log=True):
         """Plot value of loss function.
         
