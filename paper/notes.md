@@ -37,3 +37,10 @@ Improvements: the calculation of RMSE for more different numbers of collocation 
 ## Deadline
 
 Revised manuscript (mark with the red color all changes that you have made in the new version of the paper) and point-to-point answers to the reviewer's comments via email: softcom@fesb.hr until August 1, 2020. 
+
+
+## Files
+
+* before conference review: [1570655320_prereview.pdf](https://github.com/antelk/schrodinger/blob/master/paper/1570655320_prereview.pdf)
+* revision: [1570655320_revised.pdf](https://github.com/antelk/schrodinger/blob/master/paper/1570655320_revised.pdf)
+* final version: [PID6550599.pdf](https://github.com/antelk/schrodinger/blob/master/paper/PID6550599.pdf)
