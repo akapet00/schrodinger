@@ -1,24 +1,29 @@
 import numpy as np
-from matplotlib import rcParams 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-    
+
+
 def latexconfig():
-    """Paper ready plots; standard LaTeX configuration."""
-    pgf_latex = {                                       # setup matplotlib to use latex for output
-        "pgf.texsystem": "pdflatex",                    # change this if using xetex or lautex
-        "text.usetex": True,                            # use LaTeX to write all text
-        "axes.labelsize": 10,                           # LaTeX default is 10pt font
-        "font.size": 10,                                # LaTeX default is 10pt font
-        "legend.fontsize": 10,                          # Make the legend/label fonts a little smaller
+    pgf_latex = {
+        # "pgf.texsystem": "pdflatex",
+        # "text.usetex": True,
+        "font.family": "serif",
+        "font.serif": [],
+        "font.sans-serif": [],
+        "font.monospace": [],
+        "axes.labelsize": 10,
+        "font.size": 10,
+        "legend.fontsize": 10,
         "xtick.labelsize": 10,
         "ytick.labelsize": 10,
-        "figure.figsize": figsize(1.0),                 # default fig size of 0.9 textwidth
+        "figure.figsize": figsize(1.0),
         "pgf.preamble": [
-            r"\usepackage[utf8x]{inputenc}",            # utf8 input support
-            r"\usepackage[T1]{fontenc}",                # plots will be generated using this preamble
+            r"\usepackage[utf8x]{inputenc}",
+            r"\usepackage[T1]{fontenc}",
             ]
         }
-    rcParams.update(pgf_latex)
+    mpl.rcParams.update(pgf_latex)
+
 
 def figsize(scale, nplots=1):
     """Golden ratio between the width and height: the ratio 
@@ -28,12 +33,22 @@ def figsize(scale, nplots=1):
     width + height    height
     -------------- = --------
          width        width
-    Props for the code goes to: https://github.com/maziarraissi/PINNs/blob/master/Utilities/plotting.py
+    Props for the code goes to:
+    https://github.com/maziarraissi/PINNs/blob/master/Utilities/plotting.py
+    Parameters
+    ----------
+    scale : int
+        Figure scaler
+    nplots : int, optional
+        Number of subplots on a single figure
+    Returns
+    -------
+    tuple
+        figsize
     """
-    fig_width_pt = 390.0                               # LaTeX \the\textwidth
-    inches_per_pt = 1.0/72.27                          # Convert pt to inch
-    golden_mean = (np.sqrt(5.0)-1.0)/2.0               # Aesthetic ratio
-    fig_width = fig_width_pt*inches_per_pt*scale       # width in inches
-    fig_height = fig_width*golden_mean*nplots          # height in inches
-    fig_size = [fig_width,fig_height]
-    return fig_size
+    fig_width_pt = 390.0
+    inches_per_pt = 1.0 / 72.27
+    golden_mean = (np.sqrt(5.0) - 1.0) / 2.0
+    fig_width = fig_width_pt * inches_per_pt * scale
+    fig_height = fig_width * golden_mean * nplots
+    return (fig_width, fig_height)
